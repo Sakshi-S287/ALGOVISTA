@@ -1,0 +1,913 @@
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+         <title>ALGOVISTA-DSA Visualizer</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Comic+Neue:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        body {
+            font-family: 'Comic Neue', cursive;
+        }
+
+        .visualizer-bar {
+            display: inline-block;
+            background-color: #3498db;
+            margin: 0 2px;
+            transition: height 0.5s, background-color 0.5s;
+            vertical-align: bottom;
+        }
+
+        .visualizer-container {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            height: 300px;
+            border: 1px solid #ccc;
+            background-color: #f4f4f4;
+            margin-top: 20px;
+            overflow: hidden;
+        }
+        /* Searching visualizer styles */
+        .highlight {
+            background-color: #f59e42 !important;
+            color: white;
+        }
+        .found {
+            background-color: #34d399 !important;
+            color: white;
+        }
+        .search-box {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            min-height: 80px;
+            margin-bottom: 20px;
+        }
+        .box {
+            transition: background-color 0.5s, color 0.5s;
+            font-weight: bold;
+            font-size: 1.2rem;
+            border-radius: 0.75rem;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+        }
+    </style>
+</head>
+<body class="bg-gray-100 text-gray-800">
+    <nav class="bg-gradient-to-r from-pink-400 via-purple-400 to-blue-400 p-4 shadow-lg">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <img src="Dsa_Visualiser.png" alt="logo" class="h-10 w-10">
+                <span class="text-white text-2xl font-bold tracking-wide">DSA Visualizer</span>
+            </div>
+            <ul class="flex space-x-4 items-center">
+                <li><button id="homeBtn" class="flex items-center text-white tab-button hover:bg-white hover:text-pink-500 px-3 py-2 rounded transition"><i class="fas fa-home mr-2"></i>Home</button></li>
+                <li><button id="aboutBtn" class="flex items-center text-white tab-button hover:bg-white hover:text-pink-500 px-3 py-2 rounded transition"><i class="fas fa-info-circle mr-2"></i>About</button></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="container mx-auto mt-8">
+        <div class="mb-8 text-center">
+            <h1 class="text-4xl font-extrabold text-purple-700 mb-2">AlgoVista- Algorithm Visualizer</h1>
+            <p class="text-lg text-gray-600">Visualize and learn various Dsa algorithms interactively. Enter your data and watch the magic step by
+                step!</p>
+        </div>
+        <!-- Home Tab -->
+        <div id="homeTab" class="tab-content hidden">
+            <h2 class="text-3xl font-bold">Welcome to DSA Visualizer!</h2>
+            <p>This platform helps you visualize various data structures and algorithms in a fun and engaging way. Choose an algorithm category and get started!</p>
+        </div>
+
+        <!-- About Tab -->
+        <div id="aboutTab" class="tab-content hidden">
+            <h2 class="text-3xl font-bold">About</h2>
+            <p>Data structures and algorithms are fundamental concepts in computer science. This visualizer helps kids and beginners understand the working of algorithms step by step with interactive visualizations.</p>
+        </div>
+
+        <!-- Algorithm Selection -->
+        <div id="algorithmSection">
+            <div class="bg-white p-6 rounded-xl shadow-2xl border border-purple-200 transition-all duration-300">
+                <h2 class="text-2xl font-bold mb-4 text-blue-600">Choose Algorithm Category</h2>
+                <select id="categorySelect" class="category-dropdown bg-purple-100 text-purple-700 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-purple-400 transition">
+                    <option value="none">Select Category</option>
+                    <option value="sorting">Sorting</option>
+                    <option value="searching">Searching</option>
+                </select>
+            </div>
+
+            <!-- Sorting Algorithms -->
+            <div id="sortingAlgorithms" class="bg-white p-6 rounded-xl shadow-2xl border border-blue-200 mt-8 hidden transition-all duration-300">
+                <h2 class="text-2xl font-bold mb-4 text-pink-600">Select Algorithm</h2>
+                <select id="algorithmSelect" class="algorithm-dropdown bg-blue-100 text-blue-700 px-3 py-2 rounded focus:outline-none focus:ring-2 focus:ring-blue-400 transition">
+                    <option value="none">Select Algorithm</option>
+                    <option value="bubbleSort">Bubble Sort</option>
+                    <option value="insertionSort">Insertion Sort</option>
+                    <option value="selectionSort">Selection Sort</option>
+                    <option value="mergeSort">Merge Sort</option>
+                    <option value="radixSort">Radix Sort</option>
+                    <option value="quickSort">Quick Sort</option>
+                    <option value="heapSort">Heap Sort</option>
+                </select>
+            </div>
+
+            <!-- Searching Panel (added) -->
+            <div id="searchPanel" class="bg-white p-6 rounded-xl shadow-2xl border border-green-200 mt-8 hidden transition-all duration-300">
+                <h2 class="text-2xl font-bold mb-4 text-blue-600">Searching Algorithms</h2>
+                <div class="bg-white p-4 rounded">
+                    <form id="searchForm" class="flex flex-col md:flex-row space-y-4 md:space-y-0 md:space-x-4">
+                        <input type="text" id="arrayInput" class="border border-purple-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-purple-400 transition" placeholder="Enter numbers separated by commas">
+                        <input type="number" id="searchValue" class="border border-blue-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-blue-400 transition" placeholder="Number to Search">
+                        <button type="button" onclick="startSearch('linear')" class="button-style bg-gradient-to-r from-blue-400 to-purple-400 hover:from-purple-400 hover:to-blue-400 text-white font-bold shadow-lg transition">Linear Search</button>
+                        <button type="button" onclick="startSearch('binary')" class="button-style bg-gradient-to-r from-green-400 to-blue-400 hover:from-blue-400 hover:to-green-400 text-white font-bold shadow-lg transition">Binary Search</button>
+                    </form>
+                    <div class="mt-4 flex items-center space-x-4">
+                        <label for="searchSpeed" class="ml-4 text-blue-600 font-semibold">Speed:</label>
+                        <input type="range" id="searchSpeed" min="100" max="2000" value="500" step="100" class="accent-purple-500">
+                        <span id="searchSpeedDisplay" class="ml-2 text-lg">500ms</span>
+                    </div>
+                </div>
+
+                <div id="searchVisualizer" class="bg-white p-6 rounded-xl mt-6">
+                    <h3 class="text-xl font-bold mb-2 text-pink-600">Visualizer</h3>
+                    <div id="searchArray" class="search-box mb-4"></div>
+                    <p id="searchResult" class="text-xl font-semibold mb-4"></p>
+                    <div id="searchExplanation" class="mt-4 text-lg text-gray-700"></div>
+                </div>
+
+                <!-- removed duplicate search refresh button; use main Refresh button below -->
+            </div>
+
+            <!-- Input Form for Numbers -->
+            <div id="inputFormSection" class="bg-white p-6 rounded-xl shadow-2xl border border-pink-200 mt-8 hidden transition-all duration-300">
+                <h2 class="text-2xl font-bold mb-4 text-purple-600">Input Data</h2>
+                <form id="inputForm" class="flex space-x-4">
+                    <input type="text" id="dataInput" class="border border-purple-300 p-2 rounded w-full focus:outline-none focus:ring-2 focus:ring-purple-400 transition" placeholder="Enter numbers separated by commas">
+                    <button type="submit" class="button-style bg-gradient-to-r from-pink-400 to-purple-400 hover:from-purple-400 hover:to-pink-400 text-white font-bold shadow-lg transition">Submit</button>
+                </form>
+            </div>
+
+            <!-- Visualizer -->
+            <div id="visualizer" class="bg-white p-6 rounded-xl shadow-2xl border border-blue-200 mt-8 hidden transition-all duration-300">
+                <h2 class="text-2xl font-bold mb-4 text-pink-600">Visualizer</h2>
+                <div id="visualizerOutput" class="visualizer-container mb-4"></div>
+                <div id="explanation" class="mt-4 text-lg text-gray-700"></div>
+                <div class="mt-4 flex items-center space-x-4">
+                    <button id="pauseBtn" class="button-style bg-gradient-to-r from-blue-400 to-purple-400 hover:from-purple-400 hover:to-blue-400 text-white font-bold shadow-lg transition">Pause</button>
+                    <button id="resumeBtn" class="button-style bg-gradient-to-r from-purple-400 to-blue-400 hover:from-blue-400 hover:to-purple-400 text-white font-bold shadow-lg hidden transition">Resume</button>
+                    <label for="speedControl" class="ml-4 text-blue-600 font-semibold">Speed:</label>
+                    <input type="range" id="speedControl" min="100" max="2000" value="1000" step="100" class="accent-purple-500">
+                </div>
+            </div>
+
+            <!-- Refresh -->
+            <div class="mt-4 text-center">
+                <button id="refreshBtn" class="button-style bg-gradient-to-r from-pink-400 to-purple-400 hover:from-purple-400 hover:to-pink-400 text-white font-bold shadow-lg transition">Refresh</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const algorithms = {
+            sorting: [
+                { name: "Bubble Sort", value: "bubbleSort" },
+                { name: "Insertion Sort", value: "insertionSort" },
+                { name: "Selection Sort", value: "selectionSort" },
+                { name: "Merge Sort", value: "mergeSort" },
+                { name: "Radix Sort", value: "radixSort" },
+                { name: "Quick Sort", value: "quickSort" },
+                { name: "Heap Sort", value: "heapSort" }
+            ]
+        };
+
+        document.getElementById('categorySelect').addEventListener('change', function() {
+            const category = this.value;
+            document.getElementById('sortingAlgorithms').classList.add('hidden');
+            document.getElementById('inputFormSection').classList.add('hidden');
+            document.getElementById('visualizer').classList.add('hidden');
+            document.getElementById('inputForm').reset(); // Reset form
+            // hide searching panel by default
+            const searchPanel = document.getElementById('searchPanel');
+            if (searchPanel) searchPanel.classList.add('hidden');
+
+            if (category === 'sorting') {
+                populateAlgorithms('sorting');
+                document.getElementById('sortingAlgorithms').classList.remove('hidden');
+            } else if (category === 'searching') {
+                // Show embedded searching panel instead of redirect
+                document.getElementById('searchPanel').classList.remove('hidden');
+            }
+        });
+
+        function populateAlgorithms(category) {
+            const algorithmSelect = document.getElementById('algorithmSelect');
+            algorithmSelect.innerHTML = '';
+            const defaultOption = document.createElement('option');
+            defaultOption.textContent = 'Select Algorithm';
+            algorithmSelect.appendChild(defaultOption);
+
+            algorithms[category].forEach(algorithm => {
+                const option = document.createElement('option');
+                option.value = algorithm.value;
+                option.textContent = algorithm.name;
+                algorithmSelect.appendChild(option);
+            });
+
+            document.getElementById('algorithmSelect').addEventListener('change', function () {
+                const selectedAlgorithm = this.value;
+                document.getElementById('inputFormSection').classList.remove('hidden');
+
+                document.getElementById('inputForm').addEventListener('submit', function (event) {
+                    event.preventDefault();
+                    const dataInput = document.getElementById('dataInput').value;
+                    const dataArray = dataInput.split(',').map(Number);
+
+                    if (selectedAlgorithm === 'bubbleSort') {
+                        visualizeBubbleSort(dataArray);
+                    } else if (selectedAlgorithm === 'insertionSort') {
+                        visualizeInsertionSort(dataArray);
+                    } else if (selectedAlgorithm === 'selectionSort') {
+                        visualizeSelectionSort(dataArray);
+                    } else if (selectedAlgorithm === 'mergeSort') {
+                        visualizeMergeSort(dataArray);
+                    } else if (selectedAlgorithm === 'radixSort') {
+                        visualizeRadixSort(dataArray);
+                    } else if (selectedAlgorithm === 'quickSort') {
+                        visualizeQuickSort(dataArray);
+                    } else if (selectedAlgorithm === 'heapSort') {
+                        visualizeHeapSort(dataArray);
+                    }
+                });
+            });
+        }
+
+        let interval;
+        let isPaused = false;
+
+        function visualizeBubbleSort(dataArray) {
+            const visualizerOutput = document.getElementById('visualizerOutput');
+            const explanation = document.getElementById('explanation');
+            visualizerOutput.innerHTML = '';
+            explanation.innerHTML = '';
+
+            // Find max value for scaling
+            const maxValue = Math.max(...dataArray);
+            const containerHeight = 300; // px, matches .visualizer-container
+
+            // Create bars based on data array
+            dataArray.forEach(value => {
+                const bar = document.createElement('div');
+                // Scale height so tallest bar fits container
+                const scaledHeight = Math.round((value / maxValue) * (containerHeight - 30));
+                bar.style.height = `${scaledHeight}px`;
+                bar.style.width = '30px';
+                bar.classList.add('visualizer-bar');
+                bar.innerText = value;
+                visualizerOutput.appendChild(bar);
+            });
+
+            // Bubble Sort logic with visualization
+            let i = 0, j = 0;
+            const speedControl = document.getElementById('speedControl');
+
+            interval = setInterval(() => {
+                if (isPaused) return;
+
+                if (i < dataArray.length) {
+                    if (j < dataArray.length - i - 1) {
+                        const bars = document.querySelectorAll('.visualizer-bar');
+                        bars[j].style.backgroundColor = 'red';
+                        bars[j + 1].style.backgroundColor = 'red';
+                        explanation.innerHTML = `Comparing ${dataArray[j]} and ${dataArray[j + 1]}`;
+
+                        if (dataArray[j] > dataArray[j + 1]) {
+                            [dataArray[j], dataArray[j + 1]] = [dataArray[j + 1], dataArray[j]];
+                            // Update heights after swap
+                            bars[j].style.height = `${Math.round((dataArray[j] / maxValue) * (containerHeight - 30))}px`;
+                            bars[j + 1].style.height = `${Math.round((dataArray[j + 1] / maxValue) * (containerHeight - 30))}px`;
+                            bars[j].innerText = dataArray[j];
+                            bars[j + 1].innerText = dataArray[j + 1];
+                            explanation.innerHTML += ` - Swapped!`;
+                        }
+
+                        setTimeout(() => {
+                            bars[j].style.backgroundColor = '#3498db';
+                            bars[j + 1].style.backgroundColor = '#3498db';
+                        }, 500);
+                        j++;
+                    } else {
+                        i++;
+                        j = 0;
+                        explanation.innerHTML += `<br>End of pass ${i}.`;
+                    }
+                } else {
+                    clearInterval(interval);
+                    explanation.innerHTML += `<br>Sorting complete! Final array: [${dataArray.join(', ')}]`;
+                }
+            }, parseInt(speedControl.value));
+
+            document.getElementById('visualizer').classList.remove('hidden');
+        }
+
+        function visualizeInsertionSort(dataArray) {
+            const visualizerOutput = document.getElementById('visualizerOutput');
+            const explanation = document.getElementById('explanation');
+            visualizerOutput.innerHTML = '';
+            explanation.innerHTML = '';
+
+            // Find max value for scaling
+            const maxValue = Math.max(...dataArray);
+            const containerHeight = 300;
+
+            // Create bars for visualization
+            dataArray.forEach(value => {
+                const scaledHeight = Math.round((value / maxValue) * (containerHeight - 30));
+                const bar = document.createElement('div');
+                bar.style.height = `${scaledHeight}px`;
+                bar.style.width = '30px';
+                bar.classList.add('visualizer-bar');
+                bar.innerText = value;
+                visualizerOutput.appendChild(bar);
+            });
+
+            let i = 1;
+            const bars = document.querySelectorAll('.visualizer-bar');
+            const speedControl = document.getElementById('speedControl');
+
+            interval = setInterval(() => {
+                if (isPaused) return;
+
+                if (i < dataArray.length) {
+                    let j = i - 1;
+                    const key = dataArray[i];
+
+                    bars[i].style.backgroundColor = '#f59e42'; // orange for current
+                    explanation.innerHTML = `<b>Step ${i}:</b> Inserting <span style='color:#f59e42'>${key}</span> into sorted portion.`;
+
+                    let moved = false;
+                    while (j >= 0 && dataArray[j] > key) {
+                        dataArray[j + 1] = dataArray[j];
+                        bars[j + 1].style.height = `${Math.round((dataArray[j] / maxValue) * (containerHeight - 30))}px`;
+                        bars[j + 1].innerText = dataArray[j];
+                        bars[j].style.backgroundColor = '#60a5fa'; // blue for compared
+                        moved = true;
+                        j--;
+
+                        setTimeout(() => {
+                            bars[j + 1].style.backgroundColor = '#3498db';
+                        }, 500);
+                    }
+
+                    dataArray[j + 1] = key;
+                    bars[j + 1].style.height = `${Math.round((key / maxValue) * (containerHeight - 30))}px`;
+                    bars[j + 1].innerText = key;
+                    bars[i].style.backgroundColor = '#3498db';
+                    if (moved) {
+                        explanation.innerHTML += ` <span style='color:#60a5fa'>(Shifted larger elements right)</span>`;
+                    }
+                    i++;
+                } else {
+                    clearInterval(interval);
+                    explanation.innerHTML += `<br><b>Sorting complete!</b> Final array: [${dataArray.join(', ')}]`;
+                }
+            }, parseInt(speedControl.value));
+
+            document.getElementById('visualizer').classList.remove('hidden');
+        }
+
+        function visualizeSelectionSort(dataArray) {
+            const visualizerOutput = document.getElementById('visualizerOutput');
+            const explanation = document.getElementById('explanation');
+            visualizerOutput.innerHTML = '';
+            explanation.innerHTML = '';
+
+            // Find max value for scaling
+            const maxValue = Math.max(...dataArray);
+            const containerHeight = 300;
+
+            // Create bars for visualization
+            dataArray.forEach(value => {
+                const scaledHeight = Math.round((value / maxValue) * (containerHeight - 30));
+                const bar = document.createElement('div');
+                bar.style.height = `${scaledHeight}px`;
+                bar.style.width = '30px';
+                bar.classList.add('visualizer-bar');
+                bar.innerText = value;
+                visualizerOutput.appendChild(bar);
+            });
+
+            let i = 0;
+            const bars = document.querySelectorAll('.visualizer-bar');
+            const speedControl = document.getElementById('speedControl');
+
+            interval = setInterval(() => {
+                if (isPaused) return;
+
+                if (i < dataArray.length - 1) {
+                    let minIndex = i;
+                    explanation.innerHTML = `<b>Step ${i + 1}:</b> Finding the smallest element from index <span style='color:#f59e42'>${i}</span>.`;
+
+                    for (let j = i + 1; j < dataArray.length; j++) {
+                        bars[j].style.backgroundColor = '#60a5fa'; // blue for compared
+                        if (dataArray[j] < dataArray[minIndex]) {
+                            if (minIndex !== i) {
+                                bars[minIndex].style.backgroundColor = '#3498db';
+                            }
+                            minIndex = j;
+                            bars[minIndex].style.backgroundColor = '#f59e42'; // orange for new min
+                        }
+                        setTimeout(() => {
+                            bars[j].style.backgroundColor = '#3498db';
+                        }, 500);
+                    }
+
+                    // Swap the minimum element with the first unsorted element
+                    [dataArray[i], dataArray[minIndex]] = [dataArray[minIndex], dataArray[i]];
+                    bars[i].style.height = `${Math.round((dataArray[i] / maxValue) * (containerHeight - 30))}px`;
+                    bars[minIndex].style.height = `${Math.round((dataArray[minIndex] / maxValue) * (containerHeight - 30))}px`;
+                    bars[i].innerText = dataArray[i];
+                    bars[minIndex].innerText = dataArray[minIndex];
+
+                    bars[i].style.backgroundColor = '#34d399'; // green for sorted
+                    explanation.innerHTML += `<br>Swapped <span style='color:#f59e42'>${dataArray[i]}</span> with <span style='color:#60a5fa'>${dataArray[minIndex]}</span>.`;
+                    i++;
+                } else {
+                    clearInterval(interval);
+                    explanation.innerHTML += `<br><b>Sorting complete!</b> Final array: [${dataArray.join(', ')}]`;
+                }
+            }, parseInt(speedControl.value));
+
+            document.getElementById('visualizer').classList.remove('hidden');
+        }
+
+        function visualizeMergeSort(dataArray) {
+            const visualizerOutput = document.getElementById('visualizerOutput');
+            const explanation = document.getElementById('explanation');
+            visualizerOutput.innerHTML = '';
+            explanation.innerHTML = '';
+
+            // Find max value for scaling
+            const maxValue = Math.max(...dataArray);
+            const containerHeight = 300;
+
+            // Helper to render bars with more color clarity
+            function renderBars(arr, highlight = [], left = [], right = [], merged = []) {
+                visualizerOutput.innerHTML = '';
+                arr.forEach((value, idx) => {
+                    const scaledHeight = Math.round((value / maxValue) * (containerHeight - 30));
+                    const bar = document.createElement('div');
+                    bar.style.height = `${scaledHeight}px`;
+                    bar.style.width = '30px';
+                    bar.classList.add('visualizer-bar');
+                    bar.innerText = value;
+                    if (merged.includes(idx)) {
+                        bar.style.backgroundColor = '#34d399'; // green for merged
+                    } else if (left.includes(idx)) {
+                        bar.style.backgroundColor = '#60a5fa'; // blue for left
+                    } else if (right.includes(idx)) {
+                        bar.style.backgroundColor = '#f472b6'; // pink for right
+                    } else if (highlight.length && idx >= highlight[0] && idx <= highlight[1]) {
+                        bar.style.backgroundColor = 'orange'; // orange for current merge range
+                    }
+                    visualizerOutput.appendChild(bar);
+                });
+            }
+
+            // Merge sort logic with visualization
+            let steps = [];
+            function mergeSort(arr, l, r) {
+                if (l >= r) return;
+                const m = Math.floor((l + r) / 2);
+                // Save step for separation
+                steps.push({ arr: arr.slice(), highlight: [l, r], left: rangeArr(l, m), right: rangeArr(m + 1, r), merged: [], explain: `Separated into left [${l}-${m}] and right [${m+1}-${r}]` });
+                mergeSort(arr, l, m);
+                mergeSort(arr, m + 1, r);
+                // Save step before merge
+                steps.push({ arr: arr.slice(), highlight: [l, r], left: rangeArr(l, m), right: rangeArr(m + 1, r), merged: [], explain: `Ready to merge left [${l}-${m}] and right [${m+1}-${r}]` });
+                merge(arr, l, m, r);
+                // Save step after merge
+                steps.push({ arr: arr.slice(), highlight: [l, r], left: [], right: [], merged: rangeArr(l, r), explain: `Merged [${l}-${r}]` });
+            }
+            function merge(arr, l, m, r) {
+                let left = arr.slice(l, m + 1);
+                let right = arr.slice(m + 1, r + 1);
+                let i = 0, j = 0, k = l;
+                while (i < left.length && j < right.length) {
+                    if (left[i] <= right[j]) {
+                        arr[k++] = left[i++];
+                    } else {
+                        arr[k++] = right[j++];
+                    }
+                }
+                while (i < left.length) arr[k++] = left[i++];
+                while (j < right.length) arr[k++] = right[j++];
+            }
+            function rangeArr(a, b) {
+                let out = [];
+                for (let i = a; i <= b; i++) out.push(i);
+                return out;
+            }
+
+            // Prepare steps
+            let arrCopy = dataArray.slice();
+            mergeSort(arrCopy, 0, arrCopy.length - 1);
+
+            // Animate steps
+            let stepIdx = 0;
+            const speedControl = document.getElementById('speedControl');
+            interval = setInterval(() => {
+                if (isPaused) return;
+                if (stepIdx < steps.length) {
+                    const step = steps[stepIdx];
+                    renderBars(step.arr, step.highlight, step.left, step.right, step.merged);
+                    explanation.innerHTML = `<b>Step ${stepIdx + 1}:</b> ${step.explain}`;
+                    stepIdx++;
+                } else {
+                    clearInterval(interval);
+                    renderBars(arrCopy);
+                    explanation.innerHTML += `<br><b>Sorting complete!</b> Final array: [${arrCopy.join(', ')}]`;
+                }
+            }, parseInt(speedControl.value));
+
+            document.getElementById('visualizer').classList.remove('hidden');
+        }
+
+        function visualizeRadixSort(dataArray) {
+            const visualizerOutput = document.getElementById('visualizerOutput');
+            const explanation = document.getElementById('explanation');
+            visualizerOutput.innerHTML = '';
+            explanation.innerHTML = '';
+
+            // Find max value for scaling
+            const maxValue = Math.max(...dataArray);
+            const containerHeight = 300;
+
+            // Helper to render bars
+            function renderBars(arr, highlight = []) {
+                visualizerOutput.innerHTML = '';
+                arr.forEach((value, idx) => {
+                    const scaledHeight = Math.round((value / maxValue) * (containerHeight - 30));
+                    const bar = document.createElement('div');
+                    bar.style.height = `${scaledHeight}px`;
+                    bar.style.width = '30px';
+                    bar.classList.add('visualizer-bar');
+                    bar.innerText = value;
+                    if (highlight.includes(idx)) {
+                        bar.style.backgroundColor = '#f59e42'; // orange for current
+                    }
+                    visualizerOutput.appendChild(bar);
+                });
+            }
+
+            // Radix sort logic with visualization
+            let arrCopy = dataArray.slice();
+            let steps = [];
+            let maxDigits = Math.max(...arrCopy).toString().length;
+            for (let d = 0; d < maxDigits; d++) {
+                // Buckets for each digit 0-9
+                let buckets = Array.from({ length: 10 }, () => []);
+                for (let i = 0; i < arrCopy.length; i++) {
+                    let digit = Math.floor(arrCopy[i] / Math.pow(10, d)) % 10;
+                    buckets[digit].push(arrCopy[i]);
+                    // Save step for each placement
+                    steps.push({ arr: arrCopy.slice(), highlight: [i], explain: `Placing <span style='color:#f59e42'>${arrCopy[i]}</span> in bucket ${digit} (digit position ${d + 1})` });
+                }
+                // Flatten buckets
+                arrCopy = [].concat(...buckets);
+                steps.push({ arr: arrCopy.slice(), highlight: [], explain: `After digit position ${d + 1}, array is [${arrCopy.join(', ')}]` });
+            }
+
+            // Animate steps
+            let stepIdx = 0;
+            const speedControl = document.getElementById('speedControl');
+            interval = setInterval(() => {
+                if (isPaused) return;
+                if (stepIdx < steps.length) {
+                    const step = steps[stepIdx];
+                    renderBars(step.arr, step.highlight);
+                    explanation.innerHTML = `<b>Step ${stepIdx + 1}:</b> ${step.explain}`;
+                    stepIdx++;
+                } else {
+                    clearInterval(interval);
+                    renderBars(arrCopy);
+                    explanation.innerHTML += `<br><b>Sorting complete!</b> Final array: [${arrCopy.join(', ')}]`;
+                }
+            }, parseInt(speedControl.value));
+
+            document.getElementById('visualizer').classList.remove('hidden');
+        }
+
+        function visualizeQuickSort(dataArray) {
+            const visualizerOutput = document.getElementById('visualizerOutput');
+            const explanation = document.getElementById('explanation');
+            visualizerOutput.innerHTML = '';
+            explanation.innerHTML = '';
+
+            // Find max value for scaling
+            const maxValue = Math.max(...dataArray);
+            const containerHeight = 300;
+
+            // Helper to render bars with more clarity
+            function renderBars(arr, pivot = null, left = [], right = [], swapped = [], sorted = []) {
+                visualizerOutput.innerHTML = '';
+                arr.forEach((value, idx) => {
+                    const scaledHeight = Math.round((value / maxValue) * (containerHeight - 30));
+                    const bar = document.createElement('div');
+                    bar.style.height = `${scaledHeight}px`;
+                    bar.style.width = '30px';
+                    bar.classList.add('visualizer-bar');
+                    bar.innerText = value;
+                    if (sorted.includes(idx)) {
+                        bar.style.backgroundColor = '#34d399'; // green for sorted
+                    } else if (swapped.includes(idx)) {
+                        bar.style.backgroundColor = '#f472b6'; // pink for swapped
+                    } else if (pivot === idx) {
+                        bar.style.backgroundColor = '#f59e42'; // orange for pivot
+                    } else if (left.includes(idx)) {
+                        bar.style.backgroundColor = '#60a5fa'; // blue for left
+                    } else if (right.includes(idx)) {
+                        bar.style.backgroundColor = '#f472b6'; // pink for right
+                    }
+                    visualizerOutput.appendChild(bar);
+                });
+            }
+
+            // Quick sort logic with visualization
+            let steps = [];
+            let sortedIndices = [];
+            function quickSort(arr, l, r) {
+                if (l < r) {
+                    let pi = partition(arr, l, r);
+                    sortedIndices.push(pi);
+                    steps.push({ arr: arr.slice(), pivot: pi, left: rangeArr(l, pi - 1), right: rangeArr(pi + 1, r), swapped: [], sorted: sortedIndices.slice(), explain: `Pivot <span style='color:#f59e42'>${arr[pi]}</span> placed at index ${pi} (now sorted)` });
+                    quickSort(arr, l, pi - 1);
+                    quickSort(arr, pi + 1, r);
+                }
+            }
+            function partition(arr, l, r) {
+                let pivot = arr[r];
+                let i = l - 1;
+                for (let j = l; j < r; j++) {
+                    steps.push({ arr: arr.slice(), pivot: r, left: rangeArr(l, i), right: [j], swapped: [], sorted: sortedIndices.slice(), explain: `Comparing <span style='color:#60a5fa'>${arr[j]}</span> with pivot <span style='color:#f59e42'>${pivot}</span>` });
+                    if (arr[j] < pivot) {
+                        i++;
+                        [arr[i], arr[j]] = [arr[j], arr[i]];
+                        steps.push({ arr: arr.slice(), pivot: r, left: [i], right: [j], swapped: [i, j], sorted: sortedIndices.slice(), explain: `Swapped <span style='color:#f472b6'>${arr[i]}</span> and <span style='color:#f472b6'>${arr[j]}</span>` });
+                    }
+                }
+                [arr[i + 1], arr[r]] = [arr[r], arr[i + 1]];
+                steps.push({ arr: arr.slice(), pivot: i + 1, left: [], right: [], swapped: [i + 1, r], sorted: sortedIndices.slice(), explain: `Swapped pivot <span style='color:#f59e42'>${arr[i + 1]}</span> to correct position` });
+                return i + 1;
+            }
+            function rangeArr(a, b) {
+                let out = [];
+                for (let i = a; i <= b; i++) out.push(i);
+                return out;
+            }
+
+            // Prepare steps
+            let arrCopy = dataArray.slice();
+            quickSort(arrCopy, 0, arrCopy.length - 1);
+
+            // Animate steps
+            let stepIdx = 0;
+            const speedControl = document.getElementById('speedControl');
+            interval = setInterval(() => {
+                if (isPaused) return;
+                if (stepIdx < steps.length) {
+                    const step = steps[stepIdx];
+                    renderBars(step.arr, step.pivot, step.left, step.right, step.swapped, step.sorted);
+                    explanation.innerHTML = `<b>Step ${stepIdx + 1}:</b> ${step.explain}`;
+                    stepIdx++;
+                } else {
+                    clearInterval(interval);
+                    renderBars(arrCopy, null, [], [], [], rangeArr(0, arrCopy.length - 1));
+                    explanation.innerHTML += `<br><b>Sorting complete!</b> Final array: [${arrCopy.join(', ')}]`;
+                }
+            }, parseInt(speedControl.value));
+
+            document.getElementById('visualizer').classList.remove('hidden');
+        }
+
+        function visualizeHeapSort(dataArray) {
+            const visualizerOutput = document.getElementById('visualizerOutput');
+            const explanation = document.getElementById('explanation');
+            visualizerOutput.innerHTML = '';
+            explanation.innerHTML = '';
+
+            // Find max value for scaling
+            const maxValue = Math.max(...dataArray);
+            const containerHeight = 300;
+
+            // Helper to render bars
+            function renderBars(arr, highlight = [], sorted = []) {
+                visualizerOutput.innerHTML = '';
+                arr.forEach((value, idx) => {
+                    const scaledHeight = Math.round((value / maxValue) * (containerHeight - 30));
+                    const bar = document.createElement('div');
+                    bar.style.height = `${scaledHeight}px`;
+                    bar.style.width = '30px';
+                    bar.classList.add('visualizer-bar');
+                    bar.innerText = value;
+                    if (sorted.includes(idx)) {
+                        bar.style.backgroundColor = '#34d399'; // green for sorted
+                    } else if (highlight.includes(idx)) {
+                        bar.style.backgroundColor = '#f59e42'; // orange for current
+                    }
+                    visualizerOutput.appendChild(bar);
+                });
+            }
+
+            // Heap sort logic with visualization
+            let arrCopy = dataArray.slice();
+            let steps = [];
+            let n = arrCopy.length;
+
+            // Build max heap
+            for (let i = Math.floor(n / 2) - 1; i >= 0; i--) {
+                heapify(arrCopy, n, i);
+                steps.push({ arr: arrCopy.slice(), highlight: [i], sorted: [], explain: `Heapify at index ${i}` });
+            }
+
+            // Extract elements from heap
+            for (let i = n - 1; i > 0; i--) {
+                [arrCopy[0], arrCopy[i]] = [arrCopy[i], arrCopy[0]];
+                steps.push({ arr: arrCopy.slice(), highlight: [0, i], sorted: rangeArr(i, n - 1), explain: `Swapped root <span style='color:#f59e42'>${arrCopy[i]}</span> with <span style='color:#f59e42'>${arrCopy[0]}</span>` });
+                heapify(arrCopy, i, 0);
+                steps.push({ arr: arrCopy.slice(), highlight: [0], sorted: rangeArr(i, n - 1), explain: `Heapify after swap, heap size ${i}` });
+            }
+
+            function heapify(arr, n, i) {
+                let largest = i;
+                let l = 2 * i + 1;
+                let r = 2 * i + 2;
+                if (l < n && arr[l] > arr[largest]) largest = l;
+                if (r < n && arr[r] > arr[largest]) largest = r;
+                if (largest !== i) {
+                    [arr[i], arr[largest]] = [arr[largest], arr[i]];
+                    heapify(arr, n, largest);
+                }
+            }
+            function rangeArr(a, b) {
+                let out = [];
+                for (let i = a; i <= b; i++) out.push(i);
+                return out;
+            }
+
+            // Animate steps
+            let stepIdx = 0;
+            const speedControl = document.getElementById('speedControl');
+            interval = setInterval(() => {
+                if (isPaused) return;
+                if (stepIdx < steps.length) {
+                    const step = steps[stepIdx];
+                    renderBars(step.arr, step.highlight, step.sorted);
+                    explanation.innerHTML = `<b>Step ${stepIdx + 1}:</b> ${step.explain}`;
+                    stepIdx++;
+                } else {
+                    clearInterval(interval);
+                    renderBars(arrCopy, [], rangeArr(0, n - 1));
+                    explanation.innerHTML += `<br><b>Sorting complete!</b> Final array: [${arrCopy.join(', ')}]`;
+                }
+            }, parseInt(speedControl.value));
+
+            document.getElementById('visualizer').classList.remove('hidden');
+        }
+
+        // Pause and Resume functionality
+        document.getElementById('pauseBtn').addEventListener('click', function() {
+            isPaused = true;
+            this.classList.add('hidden');
+            document.getElementById('resumeBtn').classList.remove('hidden');
+        });
+
+        document.getElementById('resumeBtn').addEventListener('click', function() {
+            isPaused = false;
+            this.classList.add('hidden');
+            document.getElementById('pauseBtn').classList.remove('hidden');
+        });
+
+        // Speed control functionality
+        document.getElementById('speedControl').addEventListener('input', function() {
+            if (interval) {
+                clearInterval(interval);
+                visualizeBubbleSort([...document.getElementById('dataInput').value.split(',').map(Number)]); // Restart visualization with new speed
+            }
+        });
+
+        // Navigation buttons for tabs
+        document.getElementById('homeBtn').addEventListener('click', function() {
+            document.getElementById('homeTab').classList.remove('hidden');
+            document.getElementById('aboutTab').classList.add('hidden');
+        });
+
+        document.getElementById('aboutBtn').addEventListener('click', function() {
+            document.getElementById('aboutTab').classList.remove('hidden');
+            document.getElementById('homeTab').classList.add('hidden');
+        });
+
+        // Refresh button
+        document.getElementById('refreshBtn').addEventListener('click', function() {
+            location.reload();
+        });
+
+        // --- Searching visualizer JS (adapted) ---
+        // Speed display
+        document.getElementById('searchSpeed').addEventListener('input', function () {
+            document.getElementById('searchSpeedDisplay').textContent = this.value + 'ms';
+        });
+
+        function createBoxes(arr, highlightStart = null, highlightEnd = null) {
+            const arrayContainer = document.getElementById('searchArray');
+            arrayContainer.innerHTML = '';
+            arr.forEach((num, idx) => {
+                const box = document.createElement('div');
+                box.className = 'box w-14 h-14 m-2 flex justify-center items-center border-2 border-gray-800 text-lg';
+                box.id = `s-box-${idx}`;
+                box.textContent = num;
+                if (highlightStart !== null && highlightEnd !== null && idx >= highlightStart && idx <= highlightEnd) {
+                    box.classList.add('highlight');
+                }
+                arrayContainer.appendChild(box);
+            });
+        }
+
+        async function linearSearch(arr, target, speed) {
+            document.getElementById('searchExplanation').innerHTML = `
+                <h3 class="text-xl font-bold">Linear Search</h3>
+                <p>Linear search checks each element of the array sequentially to find the target element.</p>
+                <p><strong>Time Complexity:</strong> O(n) in the worst case.</p>
+            `;
+
+            for (let i = 0; i < arr.length; i++) {
+                const box = document.getElementById(`s-box-${i}`);
+                box.classList.add('highlight');
+                await new Promise(res => setTimeout(res, speed));
+                if (arr[i] === target) {
+                    box.classList.remove('highlight');
+                    box.classList.add('found');
+                    document.getElementById('searchResult').textContent = `Found ${target} at index ${i}`;
+                    return;
+                }
+                box.classList.remove('highlight');
+            }
+            document.getElementById('searchResult').textContent = `${target} not found.`;
+        }
+
+        async function binarySearch(arr, target, speed) {
+            document.getElementById('searchExplanation').innerHTML = `
+                <h3 class="text-xl font-bold">Binary Search</h3>
+                <p>Binary search works on sorted arrays. It repeatedly divides the search interval in half until the target is found.</p>
+                <p><strong>Time Complexity:</strong> O(log n) in the worst case.</p>
+            `;
+
+            let left = 0, right = arr.length - 1;
+            while (left <= right) {
+                createBoxes(arr, left, right);
+                await new Promise(res => setTimeout(res, speed));
+
+                const mid = Math.floor((left + right) / 2);
+                const box = document.getElementById(`s-box-${mid}`);
+                box.classList.add('highlight');
+                await new Promise(res => setTimeout(res, speed));
+
+                if (arr[mid] === target) {
+                    box.classList.remove('highlight');
+                    box.classList.add('found');
+                    document.getElementById('searchResult').textContent = `Found ${target} at index ${mid}`;
+                    return;
+                } else if (arr[mid] < target) {
+                    left = mid + 1;
+                } else {
+                    right = mid - 1;
+                }
+            }
+            document.getElementById('searchResult').textContent = `${target} not found.`;
+        }
+
+        function startSearch(type) {
+            const input = document.getElementById('arrayInput').value;
+            const target = parseInt(document.getElementById('searchValue').value, 10);
+            const speed = parseInt(document.getElementById('searchSpeed').value, 10);
+
+            if (!input || isNaN(target)) {
+                alert('Please enter valid inputs.');
+                return;
+            }
+
+            const arr = input.split(',').map(Number);
+            if (type === 'binary') arr.sort((a, b) => a - b);
+
+            createBoxes(arr);
+            document.getElementById('searchResult').textContent = '';
+
+            if (type === 'linear') linearSearch(arr, target, speed);
+            else binarySearch(arr, target, speed);
+        }
+
+        // Note: search panel re-uses the main refresh button; no separate listener needed
+    </script>
+</body>
+</html>
