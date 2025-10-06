@@ -215,14 +215,22 @@
                 algorithmSelect.appendChild(option);
             });
 
-            document.getElementById('algorithmSelect').addEventListener('change', function () {
+            // Use assignment to avoid registering multiple handlers on repeated calls
+            document.getElementById('algorithmSelect').onchange = function () {
                 const selectedAlgorithm = this.value;
                 document.getElementById('inputFormSection').classList.remove('hidden');
 
-                document.getElementById('inputForm').addEventListener('submit', function (event) {
+                // Assign the submit handler (replaces previous) to avoid duplicate listeners
+                document.getElementById('inputForm').onsubmit = function (event) {
                     event.preventDefault();
                     const dataInput = document.getElementById('dataInput').value;
                     const dataArray = dataInput.split(',').map(Number);
+
+                    // Clear any existing interval before starting a new visualization
+                    if (interval) {
+                        clearInterval(interval);
+                        interval = null;
+                    }
 
                     if (selectedAlgorithm === 'bubbleSort') {
                         visualizeBubbleSort(dataArray);
@@ -239,12 +247,13 @@
                     } else if (selectedAlgorithm === 'heapSort') {
                         visualizeHeapSort(dataArray);
                     }
-                });
-            });
+                };
+            };
         }
 
         let interval;
         let isPaused = false;
+        let currentSpeed = 1000; // default speed used by visualizers (ms)
 
         function visualizeBubbleSort(dataArray) {
             const visualizerOutput = document.getElementById('visualizerOutput');
@@ -272,6 +281,7 @@
             let i = 0, j = 0;
             const speedControl = document.getElementById('speedControl');
 
+            // Use currentSpeed so it can be updated via the slider
             interval = setInterval(() => {
                 if (isPaused) return;
 
@@ -306,7 +316,7 @@
                     clearInterval(interval);
                     explanation.innerHTML += `<br>Sorting complete! Final array: [${dataArray.join(', ')}]`;
                 }
-            }, parseInt(speedControl.value));
+            }, currentSpeed || parseInt(speedControl.value));
 
             document.getElementById('visualizer').classList.remove('hidden');
         }
@@ -529,7 +539,7 @@
                     renderBars(arrCopy);
                     explanation.innerHTML += `<br><b>Sorting complete!</b> Final array: [${arrCopy.join(', ')}]`;
                 }
-            }, parseInt(speedControl.value));
+            }, currentSpeed || parseInt(speedControl.value));
 
             document.getElementById('visualizer').classList.remove('hidden');
         }
@@ -789,11 +799,13 @@
             document.getElementById('pauseBtn').classList.remove('hidden');
         });
 
-        // Speed control functionality
+        // Speed control functionality: update currentSpeed and stop current animation (user can resubmit)
         document.getElementById('speedControl').addEventListener('input', function() {
+            currentSpeed = parseInt(this.value, 10);
+            // If an animation is running, clear it to avoid overlapping intervals. User can resubmit to restart.
             if (interval) {
                 clearInterval(interval);
-                visualizeBubbleSort([...document.getElementById('dataInput').value.split(',').map(Number)]); // Restart visualization with new speed
+                interval = null;
             }
         });
 
